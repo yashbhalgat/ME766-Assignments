@@ -3,6 +3,7 @@
  * Roll no: 	13D070014
  * Course:  	ME766
  * Description: Large Matrix Multiplication using MPI library
+ * Tested:		tested on test matrix provided by Prof. Gopalakrishnan
 ************************************************************/ 
 
 #include <iostream>
@@ -10,7 +11,7 @@
 #include <mpi.h>
 #include <time.h>
 
-#define SIZE 10
+#define SIZE 10000
 
 using namespace std;
 
@@ -38,14 +39,33 @@ int main(int argc, char* argv[])
 	//srand(time(NULL));
 	
 	B = new double [SIZE*SIZE];
+	// if(mype == 0) {
+	// 	A = new double [SIZE*SIZE];
+	// 	C = new double [SIZE*SIZE];
+	// 	for(int i=0; i<SIZE*SIZE; ++i) {
+	// 		A[i] = rand()%100;
+	// 		B[i] = rand()%100;
+	// 	}
+
+	// }
+	// else {
+	// 	A = new double [SIZE*submat_size];
+	// 	C = new double [SIZE*submat_size];
+	// 	for(int i=0; i<SIZE*submat_size; ++i) {
+	// 		C[i] = 0.0;
+	// 	}
+	// }
+	
 	if(mype == 0) {
 		A = new double [SIZE*SIZE];
 		C = new double [SIZE*SIZE];
-		for(int i=0; i<SIZE*SIZE; ++i) {
-			A[i] = rand()%100;
-			B[i] = rand()%100;
+		for(int i = 1; i <= SIZE; i++){
+			for(int j = 1; j <= SIZE; j++){
+				// test matrix given by Prof. Gopalakrishnan
+				A[(j-1) + (i-1)*SIZE] = i+j;
+				B[(j-1) + (i-1)*SIZE] = i*j;
+			}
 		}
-
 	}
 	else {
 		A = new double [SIZE*submat_size];
@@ -54,7 +74,7 @@ int main(int argc, char* argv[])
 			C[i] = 0.0;
 		}
 	}
-	
+
 	
 	start = MPI_Wtime();
 		
@@ -101,7 +121,8 @@ int main(int argc, char* argv[])
 	
 	end = MPI_Wtime();
 	
-	cout << "Total time taken by process " << mype << " = " << end-start << endl;
+	cout<<"Using the MPI library for mat_multiplication of size: "<<SIZE<<" x "<<SIZE<<endl;
+	cout << "Total time taken by process " << mype <<" = " << end-start << endl;
 	
 	display_matrices(mype, C, A, B);
 	
@@ -110,7 +131,7 @@ int main(int argc, char* argv[])
 
 void display_matrices(int mype, double* C, double* A, double* B){
 	if(mype == 0) {
-	    if(SIZE > 32) {
+	    if(SIZE > 10) {
 	        cout << "Size is to large to display..." << endl;
 	    }
 	    else {
