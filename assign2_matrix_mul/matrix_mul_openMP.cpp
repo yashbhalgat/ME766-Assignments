@@ -1,19 +1,21 @@
-/********************************************************
- * Author:  Yash Sanjay Bhalgat
- * Roll no: 13D070014
- * Course:  ME766
-********************************************************/ 
+/********************************************************************
+ * Author:  	Yash Sanjay Bhalgat
+ * Roll no: 	13D070014
+ * Course:  	ME766
+ * Description: Large Matrix Multiplication using the openMP library
+********************************************************************/ 
 
 #include <iostream>
 #include <cstdlib>
 #include <mpi.h>
 #include <omp.h>
-
-using namespace std;
+#include <time.h>
 
 #define SIZE 1000
 
-int main(int argc, char* argv[])
+using namespace std;
+
+int main()
 {
 	float *A, *B, *C;
 	int max_t;
@@ -26,15 +28,16 @@ int main(int argc, char* argv[])
 	B = new float[ROWB*ROWB];
 	C = new float[ROWA*COLB];
 	
+	srand (time(NULL));
+	
 	for(int i=0; i<(SIZE*SIZE); i++){
 		A[i] = rand()%100;
 		B[i] = rand()%100;
 	}
 	
-	start=MPI_Wtime();
-	max_t = omp_get_max_threads();
-	cout<<max_t<<endl;
-	#pragma omp parallel for shared (A, B, C, ROWA, COLA, COLB) //num_threads(4) instead do export OMP_NUM_THREADS=1
+	start = MPI_Wtime();
+	
+	#pragma omp parallel for shared (A, B, C, ROWA, COLA, COLB) //execute `export OMP_NUM_THREADS=1`
 	
 	for(int i = 0; i < ROWA; i++){
 		for(int j = 0; j < COLB; j++){
@@ -45,9 +48,9 @@ int main(int argc, char* argv[])
 		} 
 	}
 	
-	end=MPI_Wtime();
+	end = MPI_Wtime();
 	
-	cout<<"Time taken to multiply "<<SIZE<<" x "<<SIZE<<" matrix : "<<(end-start)<<" seconds"<<endl;	
+	cout<<"Time taken by openMP to multiply "<<SIZE<<" x "<<SIZE<<" matrices : "<< (end-start) <<" secs"<<endl;
 	
 	delete [] A;
 	delete [] B;
